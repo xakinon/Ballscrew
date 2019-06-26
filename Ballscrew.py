@@ -106,7 +106,10 @@ class MainWindow(QtWidgets.QMainWindow):
         calicurate = Calicurate(conditions, self.model['ballscrew'].items, self.model['motor'].items, self.model['coupling'].items)
         calicurate.commit()
         self.model['result'].removeAllItems()
-        self.model['result'].addColumns(calicurate.columns)
+        if len( calicurate.dicts ) == 0:
+            return
+        if len( self.model['result'].columns ) == 0:
+            self.model['result'].addColumns(calicurate.columns)
         self.model['result'].addItems(calicurate.dicts)
 
     def keyPressEvent(self, e):

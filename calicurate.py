@@ -14,7 +14,7 @@ class Calicurate():
         self.columns = []
 
     def commit(self):
-        flag = False
+        flag = True
         self.dicts = []
 
         # ストロークでボールねじを選定
@@ -124,6 +124,12 @@ class Calicurate():
                 if flag:
                     continue
 
+            ########### 安全率計算 ###########
+            calculatedValues['荷重の安全率'] = min([ballscrew['座屈荷重'], ballscrew['降伏荷重'], ballscrew['静最大許容荷重']]) / calculatedValues['軸方向最大荷重']
+            calculatedValues['回転数の安全率'] = min([coupling['最大回転数'], servomotor['最大回転数'], ballscrew['許容回転数'], ballscrew['危険速度']]) / calculatedValues['最高回転数']
+            calculatedValues['イナーシャの安全率'] = servomotor['許容イナーシャ比'] / calculatedValues['イナーシャ比']
+            calculatedValues['トルクの安全率'] = min([servomotor['最大トルク'], coupling['最大トルク']]) / calculatedValues['最大トルク']
+
             # 各辞書を連結してリストに追加
             calculatedValues['ユニット全長'] = servomotor['全長'] + ballscrew['全長'] + 1
             self.dicts.append(
@@ -138,7 +144,10 @@ class Calicurate():
             )
         
         # モデル用の列リストを作成
-        self.columns = ['BSメーカー','BS型番','BSねじ径','BSリード','BSストローク','BS全長','SMメーカー','SM定格出力','SM型番','CPメーカー','CP型番','CP直径','CP全長']
+        self.columns = ['ユニット全長', '荷重の安全率', '回転数の安全率', 'イナーシャの安全率', 'トルクの安全率', 'BSメーカー','BS型番','BSねじ径','BSリード','BSストローク','BS全長','SMメーカー','SM定格出力','SM型番','CPメーカー','CP型番','CP直径','CP全長']
+        
+        if len( self.dicts ) == 0:
+            return
         
         for key in self.dicts[0]:
             if not key in list(self.columns):
